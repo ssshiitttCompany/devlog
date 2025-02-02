@@ -2,20 +2,20 @@ name: "infra preview & deploy"
 
 on:
   push:
-      branches :
-        - main
-      paths:
-        - 10_infra/**
-        - .github/workflows/**
+    branches:
+      - main
+    paths:
+      - 10_infra/**
+      - .github/workflows/**
   workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
-env :
+env:
   AWS_REGION: ap-northeast-1
-  TF_VERSION: 1.10.5
+  TF_VERSION: 1.2.8
 
 defaults:
   run:
@@ -24,28 +24,23 @@ defaults:
 
 jobs:
   preview:
-    name: "preview"
+    name: Preview
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Cehckout repository
+        uses: actions/checkout@v3
       - name: Setup terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
       - name: Terraform format
         run: |
           terraform fmt -check
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS Credential
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
-          role-session-name: "GitHubActionsSession"
-          audience: sts.amazonaws.com
       - name: Terraform init
         run: |
           terraform init -no-color
-        env:
-          TF_LOG: DEBUG
-          AWS_REGION: ${{ env.AWS_REGION }}
