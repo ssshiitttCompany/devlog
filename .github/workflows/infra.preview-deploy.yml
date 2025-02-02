@@ -41,6 +41,11 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          role-session-name: "GitHubActionsSession"
+          audience: sts.amazonaws.com
       - name: Terraform init
         run: |
           terraform init -no-color
+        env:
+          TF_LOG: DEBUG
+          AWS_REGION: ${{ env.AWS_REGION }}
